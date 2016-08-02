@@ -66,19 +66,21 @@ def create_email_address(first_name, last_name, domain):
     return email_address
 
 
-def generate_ips():
-    '''creates a list of strings that simulate compliant ip addresses.
-    '''
-    ips = []
-    octets = []
-    for x in range(30):
-        for octet in range(4):
-            octets.append(str(choice(range(1, 256))))
+def make_random_ipv4_address():
+    '''Returns random IPV4 address in "dotted quad" formatted string.
+    Each byte of IPV4 address can be 1 to 255 inclusive.
+    E.g., '191.158.12.3'.'''
 
-        ip = '.'.join(octets)
-        ips.append(ip)
-        octets = []
-    return ips
+    octets = (str(randint(1, 0x100-1)) for _ in range(4))
+    dotted_quad_ipv4_address = '.'.join(octets)
+    return dotted_quad_ipv4_address
+
+
+def make_random_ipv4_addresses(n):
+    '''Returns list of n random IPV4 addresses in "dotted quad"
+    formatted strings.'''
+
+    return [make_random_ipv4_address() for _ in range(n)]
 
 
 def create_payload_size():
@@ -190,7 +192,7 @@ def main():
             first_name, last_name = line.split(' ')
             names[line] = create_email_address(first_name, last_name, domain)
 
-    ip_addresses = generate_ips()
+    ip_addresses = make_random_ipv4_addresses(30)
 
     # The lat longs below create a bounding box around Liechtenstein
     # (why?, because!)
