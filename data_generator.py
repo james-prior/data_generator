@@ -55,13 +55,13 @@ def complain_and_quit(error_message=None):
     sys.exit(s)
 
 
-def create_email(fname, lname, domain):
+def create_email_address(first_name, last_name, domain):
     '''Creates an email address in the format first initial last name @ domain
     for example:
     bwayne@batman.org
     '''
-    addr = '{}{}@{}'.format(fname[0], lname, domain)
-    return addr
+    email_address = '{}{}@{}'.format(first_name[0], last_name, domain)
+    return email_address
 
 
 def generate_ips():
@@ -163,8 +163,8 @@ def main():
 
         for line in f:
             line = line.strip()
-            fname, lname = line.split(' ')
-            names[line] = create_email(fname, lname, domain)
+            first_name, last_name = line.split(' ')
+            names[line] = create_email_address(first_name, last_name, domain)
 
     ip_list = generate_ips()
 
