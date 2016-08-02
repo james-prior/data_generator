@@ -102,7 +102,7 @@ def get_random_time_increment():
                                       # to datetime.timedelta
                                       # gives backwards shift of 1 day
                                       # with a 1 out of 6 chance.
-                                      # Add/remove zeroes to change this.
+                                      # Add/remove zeroes to change the odds.
     increment = datetime.timedelta(choice(delta_days), randint(1, 100-1))
     return increment
 
