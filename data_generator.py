@@ -31,7 +31,7 @@
 #      * enable the use of threshholds: very corrupted/limited corruption
 #   9) add an option to set the delimiter AND/OR include quoting
 
-from random import choice, randint, random
+from random import choice, randint, random, uniform
 import datetime
 from datetime import datetime as dt
 from collections import defaultdict
@@ -103,6 +103,30 @@ def create_tdelta():            # rename...
     return increment
 
 
+def format_latlong(x, is_latitude):
+    if False:  # This is the fancy way.
+        FORMAT = '{:.5f} {}'
+        if is_latitude:
+            "+45.123456 becomes '45.12346 N'."
+            "-45.123456 becomes '45.12346 S'."
+            assert -90. <= x <= 90.
+            direction = 'N' if x >=0 else 'S'
+            x = abs(x)
+        else:
+            "+83.1234567 becomes '83.12346 E'."
+            "-83.1234567 becomes '83.12346 W'."
+            x %= 360.
+            if x > 180.:
+                x = 360. - x
+                direction = 'W'
+            else:
+                direction = 'E'
+    else:  # Old way.
+        FORMAT = '{:.5f}'
+        direction = None
+
+    return FORMAT.format(x, direction)
+
 def geo(min_lat, max_lat, min_long, max_long):
     '''creates a pair of numbers that simulate a geo-location with
     latitude and longitude based on the decimal degrees format:
@@ -112,15 +136,13 @@ def geo(min_lat, max_lat, min_long, max_long):
     bounding box to be selected out of the broader range of geos as part of the
     puzzle.
     '''
-    lat_bounds = [min_lat, max_lat]
-    lat = (random() * (max_lat - min_lat)) + min_lat
-    lat = str(round(lat, 5))
+    latitude = uniform(min_lat, max_lat)
+    formatted_latitude = format_latlong(latitude, True)
 
-    long_bounds = [min_long, max_long]
-    long = (random() * (max_long - min_long)) + min_long
-    long = str(round(long, 5))
+    longitude = uniform(min_long, max_long)
+    formatted_longitude = format_latlong(longitude, False)
 
-    return lat, long
+    return formatted_latitude, formatted_longitude
 
 
 def create_outputs(num_of_lines, names, ip_addresses, bounding_box, end='\n'):
@@ -178,6 +200,11 @@ def main():
     max_lat = 50
     min_long = 7.5
     max_long = 12.5
+    if False:  # Handy for testing.
+        min_lat = -90.
+        max_lat = +90.
+        min_long = -180.
+        max_long = +180.
     bounding_box = (min_lat, max_lat, min_long, max_long)
 
     if file_type == 'csv':
