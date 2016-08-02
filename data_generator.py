@@ -45,6 +45,10 @@ MAX_N_PAYLOAD_BYTES = 10**6
 DATABASE_NAME = 'superheroes'
 
 def get_usage():
+    '''Returns usage as multi-line string.
+
+    Automatically uses name of program as executed,
+    so output is still correct after renaming program.'''
     program_name = basename(sys.argv[0])
     return ('''
     {program_name} produces data in multiple formats,
@@ -66,7 +70,8 @@ def complain_and_quit(error_message=None):
 def create_email_address(first_name, last_name, domain):
     '''Creates an email address in the format first initial last name @ domain
     for example:
-    bwayne@batman.org
+    create_email_address('bruce', 'wayne', 'batman.org')
+    returns 'bwayne@batman.org'
     '''
     email_address = '{}{}@{}'.format(first_name[0], last_name, domain)
     return email_address
@@ -75,7 +80,7 @@ def create_email_address(first_name, last_name, domain):
 def make_random_ipv4_address():
     '''Returns random IPV4 address in "dotted quad" formatted string.
     Each byte of IPV4 address can be 1 to 255 inclusive.
-    E.g., '191.158.12.3'.'''
+    E.g., '191.255.1.3'.'''
 
     octets = (str(randint(1, 0x100-1)) for _ in range(4))
     dotted_quad_ipv4_address = '.'.join(octets)
@@ -83,8 +88,8 @@ def make_random_ipv4_address():
 
 
 def make_random_ipv4_addresses(n):
-    '''Returns list of n random IPV4 addresses in "dotted quad"
-    formatted strings.'''
+    '''Returns list of n random IPV4 addresses
+    as "dotted quad" formatted strings.'''
 
     return [make_random_ipv4_address() for _ in range(n)]
 
@@ -162,6 +167,8 @@ def gen_times(time, get_time_increment):
 
 def generate_records(
         num_of_lines, email_addresses, ip_addresses, bounding_box):
+    '''bounding_box is tuple:
+        (min_latitude, max_latitude, min_longitude, max_longitude)'''
     names = tuple(email_addresses.keys())
     times = gen_times(dt.now(), get_random_time_increment)
 
@@ -175,7 +182,8 @@ def generate_records(
         to_ip = choice(ip_addresses)
         timestamp = time.strftime('%Y-%m-%dT%H:%M:%S')
         latitude, longitude = geo(*bounding_box)
-        # print(name, email, from_ip, to_ip, timestamp, latitude, longitude)    #dbg
+        if False:  # for debugging
+            print(name, email, from_ip, to_ip, timestamp, latitude, longitude)
 
         yield (name, email, from_ip, to_ip, timestamp, latitude, longitude)
 
@@ -228,7 +236,6 @@ def main():
             csvwriter = csv.writer(output_file)
             n = 0
             for record in records:
-                # print(','.join(record), file=output_file)
                 csvwriter.writerow(record)
                 n += 1
             print('Output length (csv):', n)
