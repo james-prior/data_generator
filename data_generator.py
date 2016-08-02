@@ -38,6 +38,7 @@ from datetime import datetime as dt
 from collections import defaultdict
 from os.path import basename
 from itertools import islice
+import csv
 import sqlite3 as sql
 
 MAX_N_PAYLOAD_BYTES = 10**6
@@ -223,10 +224,12 @@ def main():
     records = generate_records(
         num_of_lines, email_addresses, ip_addresses, bounding_box)
     if file_type == 'csv':
-        with open(output_filename, 'w') as output_file:
+        with open(output_filename, 'w', newline='') as output_file:
+            csvwriter = csv.writer(output_file)
             n = 0
             for record in records:
-                print(','.join(record), file=output_file)
+                # print(','.join(record), file=output_file)
+                csvwriter.writerow(record)
                 n += 1
             print('Output length (csv):', n)
     elif file_type == 'sql':
