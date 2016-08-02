@@ -162,15 +162,15 @@ def main():
             "num_of_lines argument was '%s' instead of integer." %
             num_of_lines)
 
-    fin = open(input_file)
-    domain = fin.readline().strip()
+    with open(input_file) as f:
+        domain = f.readline().strip()
 
-    names = defaultdict(str)
+        names = defaultdict(str)
 
-    for line in fin:
-        line = line.strip()
-        fname, lname = line.split(' ')
-        names[line] = create_email(fname, lname, domain)
+        for line in f:
+            line = line.strip()
+            fname, lname = line.split(' ')
+            names[line] = create_email(fname, lname, domain)
 
     ip_list = generate_ips()
 
