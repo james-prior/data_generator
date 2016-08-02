@@ -35,15 +35,17 @@ from random import choice, randint, random
 import datetime
 from datetime import datetime as dt
 from collections import defaultdict
+from os.path import basename
 
 import sys
 
 def get_usage():
+    program_name = basename(sys.argv[0])
     return '''
-    data_generator produces data in multiple formats,
+    {program_name} produces data in multiple formats,
     including sql tables and CSVs.
-    Usage: data_generator.py <input_file> <num_of_lines> <file_type> <out_file>
-    '''
+    Usage: {program_name} <input_file> <num_of_lines> <file_type> <out_file>
+    '''.format(program_name=program_name)
 
 
 def complain_and_quit(error_message=None):
