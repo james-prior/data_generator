@@ -38,15 +38,34 @@ from collections import defaultdict
 
 import sys
 
+def get_usage():
+    return '''
+    data_generator produces data in multiple formats,
+    including sql tables and CSVs.
+    Usage: data_generator.py <input_file> <num_of_lines> <file_type> <out_file>
+    '''
+
+
+def complain_and_quit(error_message=None):
+    messages = []
+    if error_message:
+        messages.append('ERROR: %s' % error_message)
+    messages.append(get_usage)
+    s = '\n'.join(messages)
+    sys.exit(s)
+
+
 try:
     input_file, num_of_lines, file_type, out_file = sys.argv[1:4+1]
 except ValueError:
-    sys.exit('''
-    data_generator produces data in multiple formats, including sql tables
-    and csvs.
-    Usage: data_generator.py <input_file> <num_of_lines> <file_type> <out_file>
-    ''')
-num_of_lines = int(num_of_lines)
+    complain_and_quit('Wrong number of arguments.')
+
+try:
+    num_of_lines = int(num_of_lines)
+except ValueError:
+    complain_and_quit(
+        "num_of_lines argument was '%s' instead of integer." %
+        num_of_lines)
 
 def create_email(fname, lname, domain):
     '''Creates an email address in the format first initial last name @ domain
