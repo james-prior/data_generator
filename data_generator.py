@@ -123,7 +123,7 @@ def geo(min_lat, max_lat, min_long, max_long):
     return lat, long
 
 
-def create_outputs(num_of_lines, end='\n'):
+def create_outputs(num_of_lines, names, ip_addresses, bounding_box, end='\n'):
     curr_time = dt.now()
     outputs = []
     for line in range(num_of_lines):
@@ -132,10 +132,10 @@ def create_outputs(num_of_lines, end='\n'):
 
         name = choice(list(names.keys()))
         email = names[name]
-        fmip = choice(ip_list)
-        toip = choice(ip_list)
+        fmip = choice(ip_addresses)
+        toip = choice(ip_addresses)
         tstamp = curr_time.strftime('%Y-%m-%dT%H:%M:%S')
-        lat, long = geo(min_lat, max_lat, min_long, max_long)
+        lat, long = geo(*bounding_box)
         # print(name, email, fmip, toip, tstamp, lat, long)    #dbg
         output = ','.join([name, email, fmip,
                            toip, tstamp, lat, long]) + end
@@ -168,7 +168,7 @@ def main():
             first_name, last_name = line.split(' ')
             names[line] = create_email_address(first_name, last_name, domain)
 
-    ip_list = generate_ips()
+    ip_addresses = generate_ips()
 
     # The lat longs below create a bounding box around Liechtenstein
     # (why?, because!)
@@ -178,10 +178,11 @@ def main():
     max_lat = 50
     min_long = 7.5
     max_long = 12.5
+    bounding_box = (min_lat, max_lat, min_long, max_long)
 
     if file_type == 'csv':
         with open(out_file, 'w') as fout:
-            outputs = create_outputs(num_of_lines)
+            outputs = create_outputs(num_of_lines, names, ip_addresses, bounding_box)
             print('Output length (csv):', len(outputs))
             for line in outputs:
                 fout.write(line)
@@ -202,7 +203,7 @@ def main():
         except:
             pass
 
-        outputs = create_outputs(num_of_lines, end='')
+        outputs = create_outputs(num_of_lines, names, ip_addresses, bounding_box, end='')
         print('Output length (sql):', len(outputs))
         for line in outputs:
             name, email, fmip, toip, datetime, lat, long = line.split(',')
