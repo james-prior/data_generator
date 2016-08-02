@@ -50,7 +50,7 @@ def complain_and_quit(error_message=None):
     messages = []
     if error_message:
         messages.append('ERROR: %s' % error_message)
-    messages.append(get_usage)
+    messages.append(get_usage())
     s = '\n'.join(messages)
     sys.exit(s)
 
