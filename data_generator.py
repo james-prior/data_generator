@@ -121,12 +121,8 @@ def geo(min_lat, max_lat, min_long, max_long):
     return lat, long
 
 
-def create_outputs(num_of_lines, new_line=True):
+def create_outputs(num_of_lines, end='\n'):
     output = ''
-    if new_line == True:
-        new_line = '\n'
-    else:
-        new_line = ''
     curr_time = dt.now()
     outputs = []
     for line in range(num_of_lines):
@@ -141,7 +137,7 @@ def create_outputs(num_of_lines, new_line=True):
         lat, long = geo(min_lat, max_lat, min_long, max_long)
         # print(name, email, fmip, toip, tstamp, lat, long)    #dbg
         output = ','.join([name, email, fmip,
-                           toip, tstamp, lat, long]) + new_line
+                           toip, tstamp, lat, long]) + end
         time_inc = create_tdelta()
         curr_time += time_inc
         outputs.append(output)
@@ -206,7 +202,7 @@ def main():
         except:
             pass
 
-        outputs = create_outputs(num_of_lines, new_line=False)
+        outputs = create_outputs(num_of_lines, end='')
         print('Output length (sql):', len(outputs))
         for line in outputs:
             name, email, fmip, toip, datetime, lat, long = line.split(',')
