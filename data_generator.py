@@ -55,18 +55,6 @@ def complain_and_quit(error_message=None):
     sys.exit(s)
 
 
-try:
-    input_file, num_of_lines, file_type, out_file = sys.argv[1:4+1]
-except ValueError:
-    complain_and_quit('Wrong number of arguments.')
-
-try:
-    num_of_lines = int(num_of_lines)
-except ValueError:
-    complain_and_quit(
-        "num_of_lines argument was '%s' instead of integer." %
-        num_of_lines)
-
 def create_email(fname, lname, domain):
     '''Creates an email address in the format first initial last name @ domain
     for example:
@@ -75,15 +63,6 @@ def create_email(fname, lname, domain):
     addr = '{}{}@{}'.format(fname[0], lname, domain)
     return addr
 
-fin = open(input_file)
-domain = fin.readline().strip()
-
-names = defaultdict(str)
-
-for line in fin:
-    line = line.strip()
-    fname, lname = line.split(' ')
-    names[line] = create_email(fname, lname, domain)
 
 def generate_ips():
     '''creates a list of strings that simulate compliant ip addresses.
@@ -99,8 +78,6 @@ def generate_ips():
         octets = []
     return ips
 
-
-ip_list = generate_ips()
 
 def create_payload_size():
     '''Generates a random payload size for the communication session.
@@ -144,15 +121,6 @@ def geo(min_lat, max_lat, min_long, max_long):
     return lat, long
 
 
-# The lat longs below create a bounding box around Liechtenstein
-# (why?, because!)
-# 47.141667, 9.523333
-
-min_lat = 45
-max_lat = 50
-min_long = 7.5
-max_long = 12.5
-
 def create_outputs(num_of_lines, new_line=True):
     output = ''
     if new_line == True:
@@ -179,6 +147,39 @@ def create_outputs(num_of_lines, new_line=True):
         outputs.append(output)
         output = ''
     return outputs
+
+try:
+    input_file, num_of_lines, file_type, out_file = sys.argv[1:4+1]
+except ValueError:
+    complain_and_quit('Wrong number of arguments.')
+
+try:
+    num_of_lines = int(num_of_lines)
+except ValueError:
+    complain_and_quit(
+        "num_of_lines argument was '%s' instead of integer." %
+        num_of_lines)
+
+fin = open(input_file)
+domain = fin.readline().strip()
+
+names = defaultdict(str)
+
+for line in fin:
+    line = line.strip()
+    fname, lname = line.split(' ')
+    names[line] = create_email(fname, lname, domain)
+
+ip_list = generate_ips()
+
+# The lat longs below create a bounding box around Liechtenstein
+# (why?, because!)
+# 47.141667, 9.523333
+
+min_lat = 45
+max_lat = 50
+min_long = 7.5
+max_long = 12.5
 
 if file_type == 'csv':
     with open(out_file, 'w') as fout:
