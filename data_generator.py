@@ -92,17 +92,18 @@ def create_payload_size(n):
     return size
 
 
-def create_tdelta():            # rename...
-    '''creates a number that simulates a compliant timestamp.
-    should produce incremental timestamps with a small, variable
-    separation from the previous timestamp.
+def get_random_time_increment():
+    '''Returns a random datetime.timedelta() value
+    for 1 to 99 seconds forward
+    plus 1 in 6 chance of going back one day.
     '''
-    digits = [-1, 0, 0, 0, 0, 0]      # this construct roughly equates to
-                                      # a backwards shift of ~1 day for every
-                                      # six records. Add/remove zeroes to change
-                                      # this
-    increment = datetime.timedelta(choice(digits),
-                             choice(range(1, 100)))
+    delta_days = (-1, 0, 0, 0, 0, 0)  # Picking an item from this at random
+                                      # for the days argument
+                                      # to datetime.timedelta
+                                      # gives backwards shift of 1 day
+                                      # with a 1 out of 6 chance.
+                                      # Add/remove zeroes to change this.
+    increment = datetime.timedelta(choice(delta_days), randint(1, 100-1))
     return increment
 
 
@@ -164,7 +165,7 @@ def create_outputs(num_of_lines, names, ip_addresses, bounding_box, end='\n'):
         # print(name, email, fmip, toip, tstamp, lat, long)    #dbg
         output = ','.join([name, email, fmip,
                            toip, tstamp, lat, long]) + end
-        time_inc = create_tdelta()
+        time_inc = get_random_time_increment()
         curr_time += time_inc
         outputs.append(output)
     return outputs
