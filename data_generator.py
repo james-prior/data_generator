@@ -122,7 +122,6 @@ def geo(min_lat, max_lat, min_long, max_long):
 
 
 def create_outputs(num_of_lines, end='\n'):
-    output = ''
     curr_time = dt.now()
     outputs = []
     for line in range(num_of_lines):
@@ -141,7 +140,6 @@ def create_outputs(num_of_lines, end='\n'):
         time_inc = create_tdelta()
         curr_time += time_inc
         outputs.append(output)
-        output = ''
     return outputs
 
 
