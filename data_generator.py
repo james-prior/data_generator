@@ -37,16 +37,19 @@ import datetime
 from datetime import datetime as dt
 from collections import defaultdict
 from os.path import basename
+from itertools import islice
+import sqlite3 as sql
 
 MAX_N_PAYLOAD_BYTES = 10**6
 
 def get_usage():
     program_name = basename(sys.argv[0])
-    return '''
+    return ('''
     {program_name} produces data in multiple formats,
     including sql tables and CSVs.
-    Usage: {program_name} <input_file> <num_of_lines> <file_type> <out_file>
-    '''.format(program_name=program_name)
+    Usage: '''
+    '''{program_name} <input_file> <num_of_lines> <file_type> <output_filename>
+    ''').format(program_name=program_name)
 
 
 def complain_and_quit(error_message=None):
@@ -149,31 +152,35 @@ def geo(min_lat, max_lat, min_long, max_long):
     return formatted_latitude, formatted_longitude
 
 
-def create_outputs(num_of_lines, names, ip_addresses, bounding_box, end='\n'):
-    curr_time = dt.now()
-    outputs = []
-    for line in range(num_of_lines):
-        # generate a new line by calling all the appropriate funcs
-        # and gathering the results into an output line
+def gen_times(time, get_time_increment):
+    while True:
+        yield time
+        time += get_time_increment()
 
-        name = choice(list(names.keys()))
-        email = names[name]
-        fmip = choice(ip_addresses)
-        toip = choice(ip_addresses)
-        tstamp = curr_time.strftime('%Y-%m-%dT%H:%M:%S')
-        lat, long = geo(*bounding_box)
-        # print(name, email, fmip, toip, tstamp, lat, long)    #dbg
-        output = ','.join([name, email, fmip,
-                           toip, tstamp, lat, long]) + end
-        time_inc = get_random_time_increment()
-        curr_time += time_inc
-        outputs.append(output)
-    return outputs
+
+def generate_records(
+        num_of_lines, email_addresses, ip_addresses, bounding_box):
+    names = tuple(email_addresses.keys())
+    times = gen_times(dt.now(), get_random_time_increment)
+
+    for time in islice(times, num_of_lines):
+        # generate a new record by calling all the appropriate funcs
+        # then appending to list of records
+
+        name = choice(names)
+        email = email_addresses[name]
+        from_ip = choice(ip_addresses)
+        to_ip = choice(ip_addresses)
+        timestamp = time.strftime('%Y-%m-%dT%H:%M:%S')
+        latitude, longitude = geo(*bounding_box)
+        # print(name, email, from_ip, to_ip, timestamp, latitude, longitude)    #dbg
+
+        yield (name, email, from_ip, to_ip, timestamp, latitude, longitude)
 
 
 def main():
     try:
-        input_file, num_of_lines, file_type, out_file = sys.argv[1:4+1]
+        input_file, num_of_lines, file_type, output_filename = sys.argv[1:4+1]
     except ValueError:
         complain_and_quit('Wrong number of arguments.')
 
@@ -187,12 +194,13 @@ def main():
     with open(input_file) as f:
         domain = f.readline().strip()
 
-        names = defaultdict(str)
+        email_addresses = defaultdict(str)
 
         for line in f:
-            line = line.strip()
-            first_name, last_name = line.split(' ')
-            names[line] = create_email_address(first_name, last_name, domain)
+            full_name = line.strip()
+            first_name, last_name = full_name.split(' ')
+            email_addresses[full_name] = create_email_address(
+                first_name, last_name, domain)
 
     ip_addresses = make_random_ipv4_addresses(30)
 
@@ -211,39 +219,47 @@ def main():
         max_long = +180.
     bounding_box = (min_lat, max_lat, min_long, max_long)
 
+    records = generate_records(
+        num_of_lines, email_addresses, ip_addresses, bounding_box)
     if file_type == 'csv':
-        with open(out_file, 'w') as fout:
-            outputs = create_outputs(num_of_lines, names, ip_addresses, bounding_box)
-            print('Output length (csv):', len(outputs))
-            for line in outputs:
-                fout.write(line)
-        fout.close()
-
+        with open(output_filename, 'w') as output_file:
+            n = 0
+            for record in records:
+                print(','.join(record), file=output_file)
+                n += 1
+            print('Output length (csv):', n)
     elif file_type == 'sql':
-        import sqlite3 as sql
-        conn = sql.connect(out_file)
+        #!!! Can the database connection be in a with/as context manager?
+        conn = sql.connect(output_filename)
         cur = conn.cursor()
+        sql_command = '''CREATE TABLE superheroes (
+            name text,
+            email text,
+            fmip text,
+            toip text,
+            datetime text,
+            lat text,
+            long text)'''
         try:
-            cur.execute('''CREATE TABLE superheroes (name text,
-                                                     email text,
-                                                     fmip text,
-                                                     toip text,
-                                                     datetime text,
-                                                     lat text,
-                                                     long text)''')
-        except:
+            cur.execute(sql_command)
+        except sql.OperationalError as e:
+            print(e)
+            #!!! need to crash or pass depending on details of exception
             pass
 
-        outputs = create_outputs(num_of_lines, names, ip_addresses, bounding_box, end='')
-        print('Output length (sql):', len(outputs))
-        for line in outputs:
-            name, email, fmip, toip, datetime, lat, long = line.split(',')
-            cur.execute('''INSERT INTO superheroes VALUES (?, ?, ?, ?, ?, ?, ?)''',
-                       (name, email, fmip, toip, datetime, lat, long))
+        n = 0
+        for record in records:
+            cur.execute(
+                'INSERT INTO superheroes VALUES (?, ?, ?, ?, ?, ?, ?)', record)
+            n += 1
+        print('Output length (sql):', n)
         conn.commit()
-        for n, l in cur.execute('''SELECT name, lat FROM superheroes LIMIT 200'''):
-            print(n, l)
+        sql_command = 'SELECT name, lat FROM superheroes LIMIT 200'
+        for name, latitude in cur.execute(sql_command):
+            print(name, latitude)
         conn.close()
+    else:
+        complain_and_quit("Bad file_type argument: '%s'." % file_type)
 
 if __name__ == '__main__':
     main()
