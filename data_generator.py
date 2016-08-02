@@ -31,13 +31,14 @@
 #      * enable the use of threshholds: very corrupted/limited corruption
 #   9) add an option to set the delimiter AND/OR include quoting
 
+import sys
 from random import choice, randint, random, uniform
 import datetime
 from datetime import datetime as dt
 from collections import defaultdict
 from os.path import basename
 
-import sys
+MAX_N_PAYLOAD_BYTES = 10**6
 
 def get_usage():
     program_name = basename(sys.argv[0])
@@ -83,11 +84,11 @@ def make_random_ipv4_addresses(n):
     return [make_random_ipv4_address() for _ in range(n)]
 
 
-def create_payload_size():
+def create_payload_size(n):
     '''Generates a random payload size for the communication session.
-    Ranges from 1 byte to 1000000 bytes
+    Ranges from 1 byte to n+1 bytes
     '''
-    size = choice(range(1, 1000001))
+    size = randint(1, n)
     return size
 
 
