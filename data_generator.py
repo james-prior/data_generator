@@ -148,69 +148,74 @@ def create_outputs(num_of_lines, new_line=True):
         output = ''
     return outputs
 
-try:
-    input_file, num_of_lines, file_type, out_file = sys.argv[1:4+1]
-except ValueError:
-    complain_and_quit('Wrong number of arguments.')
 
-try:
-    num_of_lines = int(num_of_lines)
-except ValueError:
-    complain_and_quit(
-        "num_of_lines argument was '%s' instead of integer." %
-        num_of_lines)
-
-fin = open(input_file)
-domain = fin.readline().strip()
-
-names = defaultdict(str)
-
-for line in fin:
-    line = line.strip()
-    fname, lname = line.split(' ')
-    names[line] = create_email(fname, lname, domain)
-
-ip_list = generate_ips()
-
-# The lat longs below create a bounding box around Liechtenstein
-# (why?, because!)
-# 47.141667, 9.523333
-
-min_lat = 45
-max_lat = 50
-min_long = 7.5
-max_long = 12.5
-
-if file_type == 'csv':
-    with open(out_file, 'w') as fout:
-        outputs = create_outputs(num_of_lines)
-        print('Output length (csv):', len(outputs))
-        for line in outputs:
-            fout.write(line)
-    fout.close()
-
-elif file_type == 'sql':
-    import sqlite3 as sql
-    conn = sql.connect(out_file)
-    cur = conn.cursor()
+def main():
     try:
-        cur.execute('''CREATE TABLE superheroes (name text,
-                                                 email text,
-                                                 fmip text,
-                                                 toip text,
-                                                 datetime text,
-                                                 lat text,
-                                                 long text)''')
-    except:
-        pass
+        input_file, num_of_lines, file_type, out_file = sys.argv[1:4+1]
+    except ValueError:
+        complain_and_quit('Wrong number of arguments.')
 
-    outputs = create_outputs(num_of_lines, new_line=False)
-    print('Output length (sql):', len(outputs))
-    for line in outputs:
-        name, email, fmip, toip, datetime, lat, long = line.split(',')
-        cur.execute('''INSERT INTO superheroes VALUES (?, ?, ?, ?, ?, ?, ?)''',
-                   (name, email, fmip, toip, datetime, lat, long))
-    conn.commit()
-    for n, l in cur.execute('''SELECT name, lat FROM superheroes LIMIT 200'''):
-        print(n, l)
-    conn.close()
+    try:
+        num_of_lines = int(num_of_lines)
+    except ValueError:
+        complain_and_quit(
+            "num_of_lines argument was '%s' instead of integer." %
+            num_of_lines)
+
+    fin = open(input_file)
+    domain = fin.readline().strip()
+
+    names = defaultdict(str)
+
+    for line in fin:
+        line = line.strip()
+        fname, lname = line.split(' ')
+        names[line] = create_email(fname, lname, domain)
+
+    ip_list = generate_ips()
+
+    # The lat longs below create a bounding box around Liechtenstein
+    # (why?, because!)
+    # 47.141667, 9.523333
+
+    min_lat = 45
+    max_lat = 50
+    min_long = 7.5
+    max_long = 12.5
+
+    if file_type == 'csv':
+        with open(out_file, 'w') as fout:
+            outputs = create_outputs(num_of_lines)
+            print('Output length (csv):', len(outputs))
+            for line in outputs:
+                fout.write(line)
+        fout.close()
+
+    elif file_type == 'sql':
+        import sqlite3 as sql
+        conn = sql.connect(out_file)
+        cur = conn.cursor()
+        try:
+            cur.execute('''CREATE TABLE superheroes (name text,
+                                                     email text,
+                                                     fmip text,
+                                                     toip text,
+                                                     datetime text,
+                                                     lat text,
+                                                     long text)''')
+        except:
+            pass
+
+        outputs = create_outputs(num_of_lines, new_line=False)
+        print('Output length (sql):', len(outputs))
+        for line in outputs:
+            name, email, fmip, toip, datetime, lat, long = line.split(',')
+            cur.execute('''INSERT INTO superheroes VALUES (?, ?, ?, ?, ?, ?, ?)''',
+                       (name, email, fmip, toip, datetime, lat, long))
+        conn.commit()
+        for n, l in cur.execute('''SELECT name, lat FROM superheroes LIMIT 200'''):
+            print(n, l)
+        conn.close()
+
+if __name__ == '__main__':
+    main()
