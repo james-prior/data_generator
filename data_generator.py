@@ -32,7 +32,7 @@
 #   9) add an option to set the delimiter AND/OR include quoting
 
 import sys
-from random import choice, randint, random, uniform
+from random import choice, randint, uniform
 import datetime
 from datetime import datetime as dt
 from collections import defaultdict
