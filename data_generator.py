@@ -35,7 +35,7 @@ import sys
 from random import choice, randint, uniform
 import datetime
 from datetime import datetime as dt
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 from os.path import basename
 from itertools import islice
 import csv
@@ -48,7 +48,7 @@ def get_usage():
     '''Returns usage as multi-line string.
 
     Automatically uses name of program as executed,
-    so output is still correct after renaming program.'''
+    so usage is still correct after renaming program.'''
     program_name = basename(sys.argv[0])
     return ('''
     {program_name} produces data in multiple formats,
@@ -219,6 +219,14 @@ def write_csv_file(output_header, field_names, records, output_filename):
         print('Output length (csv):', n)
 
 
+def write_json_file(output_header, field_names, records, output_filename):
+    import json
+    with open(output_filename, 'w', newline='') as output_file:
+        d = [OrderedDict(zip(field_names, r)) for r in records]
+        print(json.dumps(d, indent=4), file=output_file)
+        print('Output length (csv):', len(d))
+
+
 def write_database(output_header, field_names, records, output_filename):
     with sql.connect(output_filename) as conn:
         cur = conn.cursor()
@@ -300,6 +308,7 @@ def main():
 
     writers = {
         'csv': write_csv_file,
+        'json': write_json_file,
         'sql': write_database,
     }
     try:
