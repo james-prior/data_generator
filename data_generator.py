@@ -247,43 +247,41 @@ def main():
                 n += 1
             print('Output length (csv):', n)
     elif file_type == 'sql':
-        #!!! Can the database connection be in a with/as context manager?
-        conn = sql.connect(output_filename)
-        cur = conn.cursor()
-        sql_command = '''CREATE TABLE {database_name} (
-            name text,
-            email text,
-            fmip text,
-            toip text,
-            datetime text,
-            lat text,
-            long text)'''.format(database_name=DATABASE_NAME)
-        try:
-            cur.execute(sql_command)
-        except sql.OperationalError as e:
-            #!!! What's the better way of doing this?
-            tolerable_exception = (
-                'table {database_name} already exists'.
-                format(database_name=DATABASE_NAME))
-            if str(e) != tolerable_exception:
-                print(e)
-                raise e
+        with sql.connect(output_filename) as conn:
+            cur = conn.cursor()
+            sql_command = '''CREATE TABLE {database_name} (
+                name text,
+                email text,
+                fmip text,
+                toip text,
+                datetime text,
+                lat text,
+                long text)'''.format(database_name=DATABASE_NAME)
+            try:
+                cur.execute(sql_command)
+            except sql.OperationalError as e:
+                #!!! What's the better way of doing this?
+                tolerable_exception = (
+                    'table {database_name} already exists'.
+                    format(database_name=DATABASE_NAME))
+                if str(e) != tolerable_exception:
+                    print(e)
+                    raise e
 
-        n = 0
-        sql_command = (
-            'INSERT INTO {database_name} VALUES (?, ?, ?, ?, ?, ?, ?)'.
-            format(database_name=DATABASE_NAME))
-        for record in records:
-            cur.execute(sql_command, record)
-            n += 1
-        print('Output length (sql):', n)
-        conn.commit()
-        sql_command = (
-            'SELECT name, lat FROM {database_name} LIMIT 200'.
-            format(database_name=DATABASE_NAME))
-        for name, latitude in cur.execute(sql_command):
-            print(name, latitude)
-        conn.close()
+            n = 0
+            sql_command = (
+                'INSERT INTO {database_name} VALUES (?, ?, ?, ?, ?, ?, ?)'.
+                format(database_name=DATABASE_NAME))
+            for record in records:
+                cur.execute(sql_command, record)
+                n += 1
+            print('Output length (sql):', n)
+            conn.commit()
+            sql_command = (
+                'SELECT name, lat FROM {database_name} LIMIT 200'.
+                format(database_name=DATABASE_NAME))
+            for name, latitude in cur.execute(sql_command):
+                print(name, latitude)
     else:
         complain_and_quit("Bad file_type argument: '%s'." % file_type)
 
