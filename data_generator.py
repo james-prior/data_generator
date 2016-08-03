@@ -316,7 +316,7 @@ def main():
     except KeyError:
         complain_and_quit(
             "Bad file_type argument: '%s' instead of one of %s." %
-            (file_type, tuple(writers.keys())))
+            (file_type, ', '.join(writers.keys())))
     writer(output_header, field_names, records, output_filename)
 
 if __name__ == '__main__':
