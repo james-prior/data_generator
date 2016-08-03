@@ -77,6 +77,25 @@ def create_email_address(first_name, last_name, domain):
     return email_address
 
 
+def get_email_addresses(filename):
+    '''Returns defaultdict of data from file.
+        Keys are full names.
+        Values are email addresses.'''
+
+    with open(filename) as f:
+        domain = f.readline().strip()
+
+        email_addresses = defaultdict(str)
+
+        for line in f:
+            full_name = line.strip()
+            first_name, last_name = full_name.split(' ')
+            email_addresses[full_name] = create_email_address(
+                first_name, last_name, domain)
+
+    return email_addresses
+
+
 def make_random_ipv4_address():
     '''Returns random IPV4 address in "dotted quad" formatted string.
     Each byte of IPV4 address can be 1 to 255 inclusive.
@@ -204,16 +223,7 @@ def main():
 
     output_header = False
 
-    with open(input_filename) as f:
-        domain = f.readline().strip()
-
-        email_addresses = defaultdict(str)
-
-        for line in f:
-            full_name = line.strip()
-            first_name, last_name = full_name.split(' ')
-            email_addresses[full_name] = create_email_address(
-                first_name, last_name, domain)
+    email_addresses = get_email_addresses(input_filename)
 
     ip_addresses = make_random_ipv4_addresses(30)
 
