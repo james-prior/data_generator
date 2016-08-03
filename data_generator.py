@@ -207,6 +207,18 @@ def generate_records(
         yield name, email, from_ip, to_ip, timestamp, latitude, longitude
 
 
+def write_csv_file(output_header, field_names, records, output_filename):
+    with open(output_filename, 'w', newline='') as output_file:
+        csvwriter = csv.writer(output_file)
+        if output_header:
+            csvwriter.writerow(field_names)
+        n = 0
+        for record in records:
+            csvwriter.writerow(record)
+            n += 1
+        print('Output length (csv):', n)
+
+
 def main():
     try:
         input_filename, num_of_lines, file_type, output_filename = (
@@ -248,15 +260,7 @@ def main():
     records = generate_records(
         num_of_lines, email_addresses, ip_addresses, bounding_box)
     if file_type == 'csv':
-        with open(output_filename, 'w', newline='') as output_file:
-            csvwriter = csv.writer(output_file)
-            if output_header:
-                csvwriter.writerow(field_names)
-            n = 0
-            for record in records:
-                csvwriter.writerow(record)
-                n += 1
-            print('Output length (csv):', n)
+        write_csv_file(output_header, field_names, records, output_filename)
     elif file_type == 'sql':
         with sql.connect(output_filename) as conn:
             cur = conn.cursor()
