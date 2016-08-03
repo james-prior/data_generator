@@ -15,7 +15,6 @@
 #   4) provide an option to include a header row
 #   5) improve the usage component to produce a help file
 #   6) set up outputs for other file types...
-#      * json
 #      * xml
 #      * pickle
 #   7) add more columns?
