@@ -201,6 +201,8 @@ def main():
             "num_of_lines argument was '%s' instead of integer." %
             num_of_lines)
 
+    output_header = False
+
     with open(input_file) as f:
         domain = f.readline().strip()
 
@@ -229,11 +231,16 @@ def main():
         max_long = +180.
     bounding_box = (min_lat, max_lat, min_long, max_long)
 
+    field_names = (
+        'name, email, from_ip, to_ip, timestamp, latitude, longitude'.
+        split(', '))
     records = generate_records(
         num_of_lines, email_addresses, ip_addresses, bounding_box)
     if file_type == 'csv':
         with open(output_filename, 'w', newline='') as output_file:
             csvwriter = csv.writer(output_file)
+            if output_header:
+                csvwriter.writerow(field_names)
             n = 0
             for record in records:
                 csvwriter.writerow(record)
