@@ -297,12 +297,18 @@ def main():
         split(', '))
     records = generate_records(
         num_of_lines, email_addresses, ip_addresses, bounding_box)
-    if file_type == 'csv':
-        write_csv_file(output_header, field_names, records, output_filename)
-    elif file_type == 'sql':
-        write_database(output_header, field_names, records, output_filename)
-    else:
-        complain_and_quit("Bad file_type argument: '%s'." % file_type)
+
+    handlers = {
+        'csv': write_csv_file,
+        'sql': write_database,
+    }
+    try:
+        handler = handlers[file_type]
+    except KeyError:
+        complain_and_quit(
+            "Bad file_type argument: '%s' instead of one of %s." %
+            (file_type, tuple(handlers.keys())))
+    handler(output_header, field_names, records, output_filename)
 
 if __name__ == '__main__':
     main()
