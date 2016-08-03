@@ -185,12 +185,13 @@ def generate_records(
         if False:  # for debugging
             print(name, email, from_ip, to_ip, timestamp, latitude, longitude)
 
-        yield (name, email, from_ip, to_ip, timestamp, latitude, longitude)
+        yield name, email, from_ip, to_ip, timestamp, latitude, longitude
 
 
 def main():
     try:
-        input_file, num_of_lines, file_type, output_filename = sys.argv[1:4+1]
+        input_filename, num_of_lines, file_type, output_filename = (
+            sys.argv[1:4+1])
     except ValueError:
         complain_and_quit('Wrong number of arguments.')
 
@@ -203,7 +204,7 @@ def main():
 
     output_header = False
 
-    with open(input_file) as f:
+    with open(input_filename) as f:
         domain = f.readline().strip()
 
         email_addresses = defaultdict(str)
