@@ -298,17 +298,17 @@ def main():
     records = generate_records(
         num_of_lines, email_addresses, ip_addresses, bounding_box)
 
-    handlers = {
+    writers = {
         'csv': write_csv_file,
         'sql': write_database,
     }
     try:
-        handler = handlers[file_type]
+        writer = writers[file_type]
     except KeyError:
         complain_and_quit(
             "Bad file_type argument: '%s' instead of one of %s." %
-            (file_type, tuple(handlers.keys())))
-    handler(output_header, field_names, records, output_filename)
+            (file_type, tuple(writers.keys())))
+    writer(output_header, field_names, records, output_filename)
 
 if __name__ == '__main__':
     main()
