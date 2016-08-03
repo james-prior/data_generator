@@ -39,6 +39,7 @@ from os.path import basename
 from itertools import islice
 import csv
 import sqlite3 as sql
+import json
 
 MAX_N_PAYLOAD_BYTES = 10**6
 DATABASE_NAME = 'superheroes'
@@ -219,7 +220,6 @@ def write_csv_file(output_header, field_names, records, output_filename):
 
 
 def write_json_file(output_header, field_names, records, output_filename):
-    import json
     with open(output_filename, 'w', newline='') as output_file:
         d = [OrderedDict(zip(field_names, r)) for r in records]
         print(json.dumps(d, indent=4), file=output_file)
