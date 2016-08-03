@@ -293,8 +293,8 @@ def main():
     bounding_box = (min_lat, max_lat, min_long, max_long)
 
     field_names = (
-        'name, email, from_ip, to_ip, timestamp, latitude, longitude'.
-        split(', '))
+        'name', 'email', 'from_ip', 'to_ip', 'timestamp',
+        'latitude', 'longitude')
     records = generate_records(
         num_of_lines, email_addresses, ip_addresses, bounding_box)
 
