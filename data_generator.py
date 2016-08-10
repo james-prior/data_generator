@@ -68,12 +68,13 @@ def complain_and_quit(error_message=None):
     sys.exit(s)
 
 
-def create_email_address(first_name, last_name, domain):
+def create_email_address(full_name, domain):
     '''Creates an email address in the format first initial last name @ domain
     for example:
-    create_email_address('bruce', 'wayne', 'batman.org')
+    create_email_address('bruce wayne', 'batman.org')
     returns 'bwayne@batman.org'
     '''
+    first_name, last_name = full_name.split(' ')
     email_address = '{}{}@{}'.format(first_name[0], last_name, domain)
     return email_address
 
@@ -90,9 +91,8 @@ def get_email_addresses(filename):
 
         for line in f:
             full_name = line.strip()
-            first_name, last_name = full_name.split(' ')
             email_addresses[full_name] = create_email_address(
-                first_name, last_name, domain)
+                full_name, domain)
 
     return email_addresses
 
