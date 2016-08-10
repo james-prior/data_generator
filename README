@@ -43,4 +43,8 @@ Areas for growth include: ----------------------------------------------------
 Currently supported output file formats: -------------------------------------
 * csv
 * sql
+* json
+* ini
 
+Installation: ----------------------------------------------------------------
+pip install -r requirements.txt

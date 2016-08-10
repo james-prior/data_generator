@@ -40,6 +40,7 @@ from itertools import islice
 import csv
 import sqlite3 as sql
 import json
+from configobj import ConfigObj
 
 MAX_N_PAYLOAD_BYTES = 10**6
 DATABASE_NAME = 'superheroes'
@@ -220,6 +221,26 @@ def write_csv_file(output_header, field_names, records, output_filename):
         print('Output length (csv):', n)
 
 
+def write_ini_file(output_header, field_names, records, output_filename):
+    config = ConfigObj(output_filename, indent_type='    ')
+    if True:
+        n = 0
+        for i, r in enumerate(records):
+            config[str(i)] = OrderedDict(zip(field_names, r))
+            n += 1
+        config.write()
+        print('Output length (ini):', n)
+    else:
+        # Works, but too hard to understand.
+        d = OrderedDict(
+            (str(i), OrderedDict(zip(field_names, r)))
+            for i, r in enumerate(records))
+        # print(d)
+        config.update(d)
+        config.write()
+        print('Output length (ini):', len(d))
+
+
 def write_json_file(output_header, field_names, records, output_filename):
     with open(output_filename, 'w', newline='') as output_file:
         d = [OrderedDict(zip(field_names, r)) for r in records]
@@ -310,6 +331,7 @@ def main():
         'csv': write_csv_file,
         'json': write_json_file,
         'sql': write_database,
+        'ini': write_ini_file,
     }
     try:
         writer = writers[file_type]
