@@ -160,6 +160,7 @@ def format_latlong(x, is_latitude):
 
     return FORMAT.format(x, direction)
 
+
 def geo(min_lat, max_lat, min_long, max_long):
     '''creates a pair of numbers that simulate a geo-location with
     latitude and longitude based on the decimal degrees format:
