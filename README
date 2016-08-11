@@ -23,8 +23,6 @@ Areas for growth include: ----------------------------------------------------
 3) provide an option to include a header row
 4) improve the usage component to produce a help file
 5) set up outputs for other file types...
-   * json
-   * xml
    * pickle
 6) add more columns?
    * to/fm mac addr - need to consider pairing to ips?
@@ -45,6 +43,7 @@ Currently supported output file formats: -------------------------------------
 * sql
 * json
 * ini
+* xml
 
 Installation: ----------------------------------------------------------------
 pip install -r requirements.txt
