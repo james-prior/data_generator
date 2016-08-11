@@ -15,7 +15,6 @@
 #   4) provide an option to include a header row
 #   5) improve the usage component to produce a help file
 #   6) set up outputs for other file types...
-#      * xml
 #      * pickle
 #   7) add more columns?
 #      * to/fm mac addr - need to consider pairing to ips?
@@ -248,6 +247,21 @@ def write_json_file(output_header, field_names, records, output_filename):
         print('Output length (csv):', len(d))
 
 
+def write_xml_file(output_header, field_names, records, output_filename):
+    import xml.etree.ElementTree as ET
+    root = ET.Element('root')
+    n = 0
+    for record in records:
+        r = ET.SubElement(root, 'record')
+        for field_name, value in zip(field_names, record):
+            ET.SubElement(r, field_name).text = value
+        n += 1
+    tree = ET.ElementTree(root)
+    print('Output length (xml):', n)
+    # ET.dump(tree)
+    tree.write(output_filename)
+
+
 def write_database(output_header, field_names, records, output_filename):
     with sql.connect(output_filename) as conn:
         cur = conn.cursor()
@@ -330,6 +344,7 @@ def main():
     writers = {
         'csv': write_csv_file,
         'json': write_json_file,
+        'xml': write_xml_file,
         'sql': write_database,
         'ini': write_ini_file,
     }
